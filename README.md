@@ -13,7 +13,7 @@ We start from a high-resolution subnetwork as the first stage, gradually add hig
 | pose_resnet_50     | 96.4 |     95.3 |  89.0 |  83.2 | 88.4 | 84.0 |  79.6 | 88.5 |     34.0 |
 | pose_resnet_101    | 96.9 |     95.9 |  89.5 |  84.4 | 88.4 | 84.5 |  80.7 | 89.1 |     34.0 |
 | pose_resnet_152    | 97.0 |     95.9 |  90.0 |  85.0 | 89.2 | 85.3 |  81.3 | 89.6 |     35.0 |
-| **pose_hrnet_w32** | 97.1 |     95.9 |  90.7 |  86.5 | 89.1 | 87.0 |  83.5 | 90.4 |     37.7 |
+| **pose_hrnet_w32** | 97.1 |     95.9 |  90.3 |  86.4 | 89.1 | 87.1 |  83.3 | 90.3 |     37.7 |
 
 ### Note:
 - Flip test is used.
@@ -181,7 +181,8 @@ ${POSE_ROOT}
 
 ### Training and Testing
 
-#### Testing on MPII dataset using model zoo's models([OneDrive] or [GoogleDrive])
+#### Testing on MPII dataset using model zoo's models([GoogleDrive](https://drive.google.com/drive/folders/1hOTihvbyIxsm5ygDpbUuJ7O_tzv4oXjC?usp=sharing) or [OneDrive](https://1drv.ms/f/s!AhIXJn_J-blW231MH2krnmLq5kkQ))
+ 
 
 ```
 python tools/test.py \
@@ -196,7 +197,8 @@ python tools/train.py \
     --cfg experiments/mpii/hrnet/w32_256x256_adam_lr1e-3.yaml
 ```
 
-#### Testing on COCO val2017 dataset using model zoo's models
+#### Testing on COCO val2017 dataset using model zoo's models([GoogleDrive](https://drive.google.com/drive/folders/1hOTihvbyIxsm5ygDpbUuJ7O_tzv4oXjC?usp=sharing) or [OneDrive](https://1drv.ms/f/s!AhIXJn_J-blW231MH2krnmLq5kkQ))
+ 
 
 ```
 python tools/test.py \
