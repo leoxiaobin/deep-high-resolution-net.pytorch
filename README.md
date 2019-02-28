@@ -166,6 +166,7 @@ ${POSE_ROOT}
         |   `-- person_keypoints_val2017.json
         |-- person_detection_results
         |   |-- COCO_val2017_detections_AP_H_56_person.json
+        |   |-- COCO_test-dev2017_detections_AP_H_609_person.json
         `-- images
             |-- train2017
             |   |-- 000000000009.jpg
