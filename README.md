@@ -222,9 +222,9 @@ Many other dense prediction tasks, such as segmentation, face alignment and obje
 ### Citation
 If you use our code or models in your research, please cite with:
 ```
-@inproceedings{SunXLWang2019,
+@inproceedings{sun2019deep,
   title={Deep High-Resolution Representation Learning for Human Pose Estimation},
-  author={Ke Sun, Bin Xiao, Dong Liu, and Jingdong Wang},
+  author={Sun, Ke and Xiao, Bin and Liu, Dong and Wang, Jingdong},
   booktitle={CVPR},
   year={2019}
 }
