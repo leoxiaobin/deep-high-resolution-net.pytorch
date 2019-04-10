@@ -150,6 +150,7 @@ def get_model_summary(model, *input_tensors, item_length=26, verbose=False):
            and module != model:
             hooks.append(module.register_forward_hook(hook))
 
+    model.eval()
     model.apply(add_hooks)
 
     space_len = item_length
