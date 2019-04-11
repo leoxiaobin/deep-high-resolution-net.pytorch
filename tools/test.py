@@ -45,7 +45,6 @@ def parse_args():
                         default=None,
                         nargs=argparse.REMAINDER)
 
-    # philly
     parser.add_argument('--modelDir',
                         help='model directory',
                         type=str,
@@ -67,36 +66,9 @@ def parse_args():
     return args
 
 
-def copy_prev_models(prev_models_dir, model_dir):
-    import shutil
-
-    vc_folder = '/hdfs/' \
-        + '/' + os.environ['PHILLY_VC']
-    source = prev_models_dir
-    # If path is set as "sys/jobs/application_1533861538020_2366/models" prefix with the location of vc folder
-    source = vc_folder + '/' + source if not source.startswith(vc_folder) \
-        else source
-    destination = model_dir
-
-    if os.path.exists(source) and os.path.exists(destination):
-        for file in os.listdir(source):
-            source_file = os.path.join(source, file)
-            destination_file = os.path.join(destination, file)
-            if not os.path.exists(destination_file):
-                print("=> copying {0} to {1}".format(
-                    source_file, destination_file))
-                shutil.copytree(source_file, destination_file)
-    else:
-        print('=> {} or {} does not exist'.format(source, destination))
-
-
 def main():
     args = parse_args()
     update_config(cfg, args)
-
-    if args.prevModelDir and args.modelDir:
-        # copy pre models for philly
-        copy_prev_models(args.prevModelDir, args.modelDir)
 
     logger, final_output_dir, tb_log_dir = create_logger(
         cfg, args.cfg, 'valid')
