@@ -1,4 +1,4 @@
-# Deep High-Resolution Representation Learning for Human Pose Estimation (accepted to CVPR2019)
+# Deep High-Resolution Representation Learning for Human Pose Estimation (CVPR 2019)
 ## News
 - If you are interested in internship or research positions related to computer vision in ByteDance AI Lab, feel free to contact me(leoxiaobin-at-gmail.com).
 - [2019/08/27] HigherHRNet is now on [ArXiv](https://arxiv.org/abs/1908.10357), which is a bottom-up approach for human pose estimation powerd by HRNet. We will also release code and models at [Higher-HRNet-Human-Pose-Estimation](https://github.com/HRNet/Higher-HRNet-Human-Pose-Estimation), stay tuned!
