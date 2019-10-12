@@ -221,7 +221,7 @@ python tools/train.py \
 
 
 ### Other applications
-Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [Deep High-Resolution Representation Learning](https://jingdongwang2017.github.io/Projects/HRNet/).
+Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [High-Resolution Networks](https://github.com/HRNet).
 
 ### Citation
 If you use our code or models in your research, please cite with:
@@ -238,5 +238,15 @@ If you use our code or models in your research, please cite with:
     title={Simple Baselines for Human Pose Estimation and Tracking},
     booktitle = {European Conference on Computer Vision (ECCV)},
     year = {2018}
+}
+
+@article{WangSCJDZLMTWLX19,
+  title={Deep High-Resolution Representation Learning for Visual Recognition},
+  author={Jingdong Wang and Ke Sun and Tianheng Cheng and 
+          Borui Jiang and Chaorui Deng and Yang Zhao and Dong Liu and Yadong Mu and 
+          Mingkui Tan and Xinggang Wang and Wenyu Liu and Bin Xiao},
+  journal   = {CoRR},
+  volume    = {abs/1908.07919},
+  year={2019}
 }
 ```
