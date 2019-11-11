@@ -124,10 +124,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                 output = outputs
 
             if config.TEST.FLIP_TEST:
-                # this part is ugly, because pytorch has not supported negative index
-                # input_flipped = model(input[:, :, :, ::-1])
-                input_flipped = np.flip(input.cpu().numpy(), 3).copy()
-                input_flipped = torch.from_numpy(input_flipped).cuda()
+                input_flipped = input.flip(3)
                 outputs_flipped = model(input_flipped)
 
                 if isinstance(outputs_flipped, list):
