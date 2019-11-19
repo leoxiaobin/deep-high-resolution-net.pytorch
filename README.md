@@ -224,12 +224,17 @@ python tools/train.py \
 #### Visualizing predictions on COCO val
 
 ```
-python visualize/plot_coco.py --prediction [your/prediction/path.json]
+python visualize/plot_coco.py \
+    --prediction [your/prediction/path.json] \
+    --save-path [your/path/to/save/figures]
+
 ```
 #### Visualizing predictions on MPII test
 
 ```
-python visualize/plot_mpii.py --prediction [your/prediction/path.mat]
+python visualize/plot_mpii.py \
+    --prediction [your/prediction/path.mat] \
+    --save-path [your/path/to/save/figures]
 ```
 
 
