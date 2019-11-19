@@ -233,9 +233,9 @@ python visualize/plot_mpii.py --prediction [your/prediction/path.mat]
 ```
 
 
-<img src="figures\visualization\coco\score_610_id_2685_000000002685.png" width="*"><img src="figures\visualization\coco\score_710_id_153229_000000153229.png" height="*"><img src="figures\visualization\coco\score_755_id_343561_000000343561.png" height="*">
+<img src="figures\visualization\coco\score_610_id_2685_000000002685.png" height="220"><img src="figures\visualization\coco\score_710_id_153229_000000153229.png" height="220"><img src="figures\visualization\coco\score_755_id_343561_000000343561.png" height="220">
 
-<img src="figures\visualization\mpii\id_0.png" height="165.5"><img src="figures\visualization\mpii\id_54.png" height="165.5"><img src="figures\visualization\mpii\id_566.png" height="165.5">
+<img src="figures\visualization\mpii\id_0.png" height="182"><img src="figures\visualization\mpii\id_54.png" height="182"><img src="figures\visualization\mpii\id_566.png" height="182">
 
 ### Other applications
 Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [High-Resolution Networks](https://github.com/HRNet).
