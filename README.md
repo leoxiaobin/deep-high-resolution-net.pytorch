@@ -219,6 +219,18 @@ python tools/train.py \
     --cfg experiments/coco/hrnet/w32_256x192_adam_lr1e-3.yaml \
 ```
 
+### Visualization
+
+#### Visualizing predictions on COCO val
+
+```
+python visualize/plot_coco.py --prediction [your/prediction/path.json]
+```
+#### Visualizing predictions on MPII test
+
+```
+python visualize/plot_mpii.py --prediction [your/prediction/path.mat]
+```
 
 ### Other applications
 Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [High-Resolution Networks](https://github.com/HRNet).
