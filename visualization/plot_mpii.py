@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--save-path',
                         help="Path to save the visualizations",
                         type=str,
-                        default='visualize/mpii/')
+                        default='visualization/mpii/')
 
     parser.add_argument('--prediction',
                         help="Prediction file to visualize",

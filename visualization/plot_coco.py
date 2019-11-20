@@ -106,7 +106,7 @@ def parse_args():
     parser.add_argument('--save-path',
                         help="Path to save the visualizations",
                         type=str,
-                        default='visualize/coco/')
+                        default='visualization/coco/')
 
     parser.add_argument('--prediction',
                         help="Prediction file to visualize",
