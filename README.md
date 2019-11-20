@@ -225,22 +225,15 @@ python tools/train.py \
 
 ```
 python visualization/plot_coco.py \
-    --prediction [your/prediction/path.json] \
-    --save-path [your/path/to/save/figures]
+    --prediction output/coco/w48_384x288_adam_lr1e-3/results/keypoints_val2017_results_0.json \
+    --save-path visualization/results
 
-```
-#### Visualizing predictions on MPII test
-
-```
-python visualization/plot_mpii.py \
-    --prediction [your/prediction/path.mat] \
-    --save-path [your/path/to/save/figures]
 ```
 
 
 <img src="figures\visualization\coco\score_610_id_2685_000000002685.png" height="215"><img src="figures\visualization\coco\score_710_id_153229_000000153229.png" height="215"><img src="figures\visualization\coco\score_755_id_343561_000000343561.png" height="215">
 
-<img src="figures\visualization\mpii\id_0.png" height="178.1"><img src="figures\visualization\mpii\id_54.png" height="178.1"><img src="figures\visualization\mpii\id_566.png" height="178.1">
+<img src="figures\visualization\coco\score_755_id_559842_000000559842.png" height="209"><img src="figures\visualization\coco\score_770_id_6954_000000006954.png" height="209"><img src="figures\visualization\coco\score_919_id_53626_000000053626.png" height="209">
 
 ### Other applications
 Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [High-Resolution Networks](https://github.com/HRNet).
