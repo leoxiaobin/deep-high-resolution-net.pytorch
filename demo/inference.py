@@ -261,7 +261,8 @@ def main():
         # pose estimation
         box = pred_boxes[0]  # assume there is only 1 person
         center, scale = box_to_center_scale(box, cfg.MODEL.IMAGE_SIZE[0], cfg.MODEL.IMAGE_SIZE[1])
-        pose_preds = get_pose_estimation_prediction(pose_model, image_bgr, center, scale)
+        image_pose = image.copy() if cfg.DATASET.COLOR_RGB else image_bgr.copy()
+        pose_preds = get_pose_estimation_prediction(pose_model, image_pose, center, scale)
 
         new_csv_row = []
         for _, mat in enumerate(pose_preds[0]):
