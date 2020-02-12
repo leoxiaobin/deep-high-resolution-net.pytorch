@@ -275,7 +275,7 @@ class PoseHighResolutionNet(nn.Module):
 
     def __init__(self, cfg, **kwargs):
         self.inplanes = 64
-        extra = cfg.MODEL.EXTRA
+        extra = cfg['MODEL']['EXTRA']
         super(PoseHighResolutionNet, self).__init__()
 
         # stem net
@@ -288,7 +288,7 @@ class PoseHighResolutionNet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_layer(Bottleneck, 64, 4)
 
-        self.stage2_cfg = cfg['MODEL']['EXTRA']['STAGE2']
+        self.stage2_cfg = extra['STAGE2']
         num_channels = self.stage2_cfg['NUM_CHANNELS']
         block = blocks_dict[self.stage2_cfg['BLOCK']]
         num_channels = [
@@ -298,7 +298,7 @@ class PoseHighResolutionNet(nn.Module):
         self.stage2, pre_stage_channels = self._make_stage(
             self.stage2_cfg, num_channels)
 
-        self.stage3_cfg = cfg['MODEL']['EXTRA']['STAGE3']
+        self.stage3_cfg = extra['STAGE3']
         num_channels = self.stage3_cfg['NUM_CHANNELS']
         block = blocks_dict[self.stage3_cfg['BLOCK']]
         num_channels = [
@@ -309,7 +309,7 @@ class PoseHighResolutionNet(nn.Module):
         self.stage3, pre_stage_channels = self._make_stage(
             self.stage3_cfg, num_channels)
 
-        self.stage4_cfg = cfg['MODEL']['EXTRA']['STAGE4']
+        self.stage4_cfg = extra['STAGE4']
         num_channels = self.stage4_cfg['NUM_CHANNELS']
         block = blocks_dict[self.stage4_cfg['BLOCK']]
         num_channels = [
@@ -322,13 +322,13 @@ class PoseHighResolutionNet(nn.Module):
 
         self.final_layer = nn.Conv2d(
             in_channels=pre_stage_channels[0],
-            out_channels=cfg.MODEL.NUM_JOINTS,
-            kernel_size=extra.FINAL_CONV_KERNEL,
+            out_channels=cfg['MODEL']['NUM_JOINTS'],
+            kernel_size=extra['FINAL_CONV_KERNEL'],
             stride=1,
-            padding=1 if extra.FINAL_CONV_KERNEL == 3 else 0
+            padding=1 if extra['FINAL_CONV_KERNEL'] == 3 else 0
         )
 
-        self.pretrained_layers = cfg['MODEL']['EXTRA']['PRETRAINED_LAYERS']
+        self.pretrained_layers = extra['PRETRAINED_LAYERS']
 
     def _make_transition_layer(
             self, num_channels_pre_layer, num_channels_cur_layer):
@@ -495,7 +495,7 @@ class PoseHighResolutionNet(nn.Module):
 def get_pose_net(cfg, is_train, **kwargs):
     model = PoseHighResolutionNet(cfg, **kwargs)
 
-    if is_train and cfg.MODEL.INIT_WEIGHTS:
-        model.init_weights(cfg.MODEL.PRETRAINED)
+    if is_train and cfg['MODEL']['INIT_WEIGHTS']:
+        model.init_weights(cfg['MODEL']['PRETRAINED'])
 
     return model
