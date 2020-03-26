@@ -19,13 +19,19 @@ import torchvision
 import cv2
 import numpy as np
 
+import sys
+sys.path.append("../lib")
+import time
 
-import _init_paths
+# import _init_paths
 import models
 from config import cfg
 from config import update_config
-from core.function import get_final_preds
+from core.inference import get_final_preds
 from utils.transforms import get_affine_transform
+
+CTX = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
 
 COCO_KEYPOINT_INDEXES = {
     0: 'nose',
@@ -67,57 +73,53 @@ def get_person_detection_boxes(model, img, threshold=0.5):
     pil_image = Image.fromarray(img)  # Load the image
     transform = transforms.Compose([transforms.ToTensor()])  # Defing PyTorch Transform
     transformed_img = transform(pil_image)  # Apply the transform to the image
-    pred = model([transformed_img])  # Pass the image to the model
+    pred = model([transformed_img.to(CTX)])  # Pass the image to the model
+    # Use the first detected person
     pred_classes = [COCO_INSTANCE_CATEGORY_NAMES[i]
-                    for i in list(pred[0]['labels'].numpy())]  # Get the Prediction Score
+                    for i in list(pred[0]['labels'].cpu().numpy())]  # Get the Prediction Score
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])]
-                  for i in list(pred[0]['boxes'].detach().numpy())]  # Bounding boxes
-    pred_score = list(pred[0]['scores'].detach().numpy())
-    if not pred_score:
-        return []
-    # Get list of index with score greater than threshold
-    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
-    pred_boxes = pred_boxes[:pred_t+1]
-    pred_classes = pred_classes[:pred_t+1]
+                  for i in list(pred[0]['boxes'].cpu().detach().numpy())]  # Bounding boxes
+    pred_scores = list(pred[0]['scores'].cpu().detach().numpy())
 
     person_boxes = []
-    for idx, box in enumerate(pred_boxes):
-        if pred_classes[idx] == 'person':
-            person_boxes.append(box)
+    # Select box has score larger than threshold and is person
+    for pred_class, pred_box, pred_score in zip(pred_classes, pred_boxes, pred_scores):
+        if (pred_score > threshold) and (pred_class == 'person'):
+            person_boxes.append(pred_box)
 
     return person_boxes
 
 
-def get_pose_estimation_prediction(pose_model, image, center, scale):
+def get_pose_estimation_prediction(pose_model, image, centers, scales, transform):
     rotation = 0
 
     # pose estimation transformation
-    trans = get_affine_transform(center, scale, rotation, cfg.MODEL.IMAGE_SIZE)
-    model_input = cv2.warpAffine(
-        image,
-        trans,
-        (int(cfg.MODEL.IMAGE_SIZE[0]), int(cfg.MODEL.IMAGE_SIZE[1])),
-        flags=cv2.INTER_LINEAR)
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225]),
-    ])
+    model_inputs = []
+    for center, scale in zip(centers, scales):
+        trans = get_affine_transform(center, scale, rotation, cfg.MODEL.IMAGE_SIZE)
+        # Crop smaller image of people
+        model_input = cv2.warpAffine(
+            image,
+            trans,
+            (int(cfg.MODEL.IMAGE_SIZE[0]), int(cfg.MODEL.IMAGE_SIZE[1])),
+            flags=cv2.INTER_LINEAR)
 
-    # pose estimation inference
-    model_input = transform(model_input).unsqueeze(0)
-    # switch to evaluate mode
-    pose_model.eval()
-    with torch.no_grad():
-        # compute output heatmap
-        output = pose_model(model_input)
-        preds, _ = get_final_preds(
-            cfg,
-            output.clone().cpu().numpy(),
-            np.asarray([center]),
-            np.asarray([scale]))
+        # hwc -> 1chw
+        model_input = transform(model_input)#.unsqueeze(0)
+        model_inputs.append(model_input)
 
-        return preds
+    # n * 1chw -> nchw
+    model_inputs = torch.stack(model_inputs)
+
+    # compute output heatmap
+    output = pose_model(model_inputs.to(CTX))
+    coords, _ = get_final_preds(
+        cfg,
+        output.cpu().detach().numpy(),
+        np.asarray(centers),
+        np.asarray(scales))
+
+    return coords
 
 
 def box_to_center_scale(box, model_image_width, model_image_height):
@@ -163,15 +165,11 @@ def box_to_center_scale(box, model_image_width, model_image_height):
 
 
 def prepare_output_dirs(prefix='/output/'):
-    pose_dir = prefix+'poses/'
-    box_dir = prefix+'boxes/'
+    pose_dir = os.path.join(prefix, "pose")
     if os.path.exists(pose_dir) and os.path.isdir(pose_dir):
         shutil.rmtree(pose_dir)
-    if os.path.exists(box_dir) and os.path.isdir(box_dir):
-        shutil.rmtree(box_dir)
     os.makedirs(pose_dir, exist_ok=True)
-    os.makedirs(box_dir, exist_ok=True)
-    return pose_dir, box_dir
+    return pose_dir
 
 
 def parse_args():
@@ -199,6 +197,13 @@ def parse_args():
 
 
 def main():
+    # transformation
+    pose_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+
     # cudnn related setting
     cudnn.benchmark = cfg.CUDNN.BENCHMARK
     torch.backends.cudnn.deterministic = cfg.CUDNN.DETERMINISTIC
@@ -206,13 +211,12 @@ def main():
 
     args = parse_args()
     update_config(cfg, args)
-    pose_dir, box_dir = prepare_output_dirs(args.outputDir)
-    csv_output_filename = args.outputDir+'pose-data.csv'
+    pose_dir = prepare_output_dirs(args.outputDir)
     csv_output_rows = []
 
     box_model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+    box_model.to(CTX)
     box_model.eval()
-
     pose_model = eval('models.'+cfg.MODEL.NAME+'.get_pose_net')(
         cfg, is_train=False
     )
@@ -223,7 +227,8 @@ def main():
     else:
         print('expected model defined in config at TEST.MODEL_FILE')
 
-    pose_model = torch.nn.DataParallel(pose_model, device_ids=cfg.GPUS).cuda()
+    pose_model.to(CTX)
+    pose_model.eval()
 
     # Loading an video
     vidcap = cv2.VideoCapture(args.videoFile)
@@ -231,68 +236,105 @@ def main():
     if fps < args.inferenceFps:
         print('desired inference fps is '+str(args.inferenceFps)+' but video fps is '+str(fps))
         exit()
-    every_nth_frame = round(fps/args.inferenceFps)
+    skip_frame_cnt = round(fps / args.inferenceFps)
+    frame_width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    outcap = cv2.VideoWriter('{}/{}_pose.avi'.format(args.outputDir, os.path.splitext(os.path.basename(args.videoFile))[0]),
+                             cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), int(skip_frame_cnt), (frame_width, frame_height))
 
-    success, image_bgr = vidcap.read()
     count = 0
+    while vidcap.isOpened():
+        total_now = time.time()
+        ret, image_bgr = vidcap.read()
+        count += 1
 
-    while success:
-        if count % every_nth_frame != 0:
-            success, image_bgr = vidcap.read()
-            count += 1
+        if not ret:
             continue
 
-        image = image_bgr[:, :, [2, 1, 0]]
-        count_str = str(count).zfill(32)
+        if count % skip_frame_cnt != 0:
+            continue
+
+        image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+
+        # Clone 2 image for person detection and pose estimation
+        if cfg.DATASET.COLOR_RGB:
+            image_per = image_rgb.copy()
+            image_pose = image_rgb.copy()
+        else:
+            image_per = image_bgr.copy()
+            image_pose = image_bgr.copy()
+
+        # Clone 1 image for debugging purpose
+        image_debug = image_bgr.copy()
 
         # object detection box
-        pred_boxes = get_person_detection_boxes(box_model, image, threshold=0.8)
-        if args.writeBoxFrames:
-            image_bgr_box = image_bgr.copy()
-            for box in pred_boxes:
-                cv2.rectangle(image_bgr_box, box[0], box[1], color=(0, 255, 0),
-                              thickness=3)  # Draw Rectangle with the coordinates
-            cv2.imwrite(box_dir+'box%s.jpg' % count_str, image_bgr_box)
+        now = time.time()
+        pred_boxes = get_person_detection_boxes(box_model, image_per, threshold=0.9)
+        then = time.time()
+        print("Find person bbox in: {} sec".format(then - now))
+
+        # Can not find people. Move to next frame
         if not pred_boxes:
-            success, image_bgr = vidcap.read()
             count += 1
             continue
 
-        # pose estimation
-        box = pred_boxes[0]  # assume there is only 1 person
-        center, scale = box_to_center_scale(box, cfg.MODEL.IMAGE_SIZE[0], cfg.MODEL.IMAGE_SIZE[1])
-        image_pose = image.copy() if cfg.DATASET.COLOR_RGB else image_bgr.copy()
-        pose_preds = get_pose_estimation_prediction(pose_model, image_pose, center, scale)
+        if args.writeBoxFrames:
+            for box in pred_boxes:
+                cv2.rectangle(image_debug, box[0], box[1], color=(0, 255, 0),
+                              thickness=3)  # Draw Rectangle with the coordinates
+
+        # pose estimation : for multiple people
+        centers = []
+        scales = []
+        for box in pred_boxes:
+            center, scale = box_to_center_scale(box, cfg.MODEL.IMAGE_SIZE[0], cfg.MODEL.IMAGE_SIZE[1])
+            centers.append(center)
+            scales.append(scale)
+
+        now = time.time()
+        pose_preds = get_pose_estimation_prediction(pose_model, image_pose, centers, scales, transform=pose_transform)
+        then = time.time()
+        print("Find person pose in: {} sec".format(then - now))
 
         new_csv_row = []
-        for _, mat in enumerate(pose_preds[0]):
-            x_coord, y_coord = int(mat[0]), int(mat[1])
-            cv2.circle(image_bgr, (x_coord, y_coord), 4, (255, 0, 0), 2)
-            new_csv_row.extend([x_coord, y_coord])
+        for coords in pose_preds:
+            # Draw each point on image
+            for coord in coords:
+                x_coord, y_coord = int(coord[0]), int(coord[1])
+                cv2.circle(image_debug, (x_coord, y_coord), 4, (255, 0, 0), 2)
+                new_csv_row.extend([x_coord, y_coord])
+
+        total_then = time.time()
+
+        text = "{:03.2f} sec".format(total_then - total_now)
+        cv2.putText(image_debug, text, (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                            1, (0, 0, 255), 2, cv2.LINE_AA)
+
+        cv2.imshow("pos", image_debug)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
         csv_output_rows.append(new_csv_row)
-        cv2.imwrite(pose_dir+'pose%s.jpg' % count_str, image_bgr)
+        img_file = os.path.join(pose_dir, 'pose_{:08d}.jpg'.format(count))
+        cv2.imwrite(img_file, image_debug)
+        outcap.write(image_debug)
 
-        # get next frame
-        success, image_bgr = vidcap.read()
-        count += 1
 
     # write csv
     csv_headers = ['frame']
     for keypoint in COCO_KEYPOINT_INDEXES.values():
         csv_headers.extend([keypoint+'_x', keypoint+'_y'])
 
+    csv_output_filename = os.path.join(args.outputDir, 'pose-data.csv')
     with open(csv_output_filename, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(csv_headers)
         csvwriter.writerows(csv_output_rows)
 
-    os.system("ffmpeg -y -r "
-              + str(args.inferenceFps)
-              + " -pattern_type glob -i '"
-              + pose_dir
-              + "/*.jpg' -c:v libx264 -vf fps="
-              + str(args.inferenceFps)+" -pix_fmt yuv420p /output/movie.mp4")
+    vidcap.release()
+    outcap.release()
+
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
