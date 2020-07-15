@@ -1,5 +1,6 @@
 # Deep High-Resolution Representation Learning for Human Pose Estimation (CVPR 2019)
 ## News
+- [2020/07/05] [A very nice blog](https://towardsdatascience.com/overview-of-human-pose-estimation-neural-networks-hrnet-higherhrnet-architectures-and-faq-1954b2f8b249) from Towards Data Science introducing HRNet and HigherHRNet for human pose estimation.
 - [2020/03/13] A longer version is accepted by TPAMI: [Deep High-Resolution Representation Learning for Visual Recognition](https://arxiv.org/pdf/1908.07919.pdf). It includes more HRNet applications, and the codes are available: [semantic segmentation](https://github.com/HRNet/HRNet-Semantic-Segmentation),  [objection detection](https://github.com/HRNet/HRNet-Object-Detection),  [facial landmark detection](https://github.com/HRNet/HRNet-Facial-Landmark-Detection), and [image classification](https://github.com/HRNet/HRNet-Image-Classification).
 - [2020/02/01] We have added demo code for HRNet. Thanks [Alex Simes](https://github.com/alex9311). 
 - Visualization code for showing the pose estimation results. Thanks Depu!
@@ -239,6 +240,10 @@ python visualization/plot_coco.py \
 
 ### Other applications
 Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [High-Resolution Networks](https://github.com/HRNet).
+
+### Other implementation
+[mmpose](https://github.com/open-mmlab/mmpose)
+
 
 ### Citation
 If you use our code or models in your research, please cite with:
