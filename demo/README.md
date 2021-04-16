@@ -51,17 +51,17 @@ Remember to update` TEST.MODEL_FILE` in `demo/inference-config.yaml `according t
 
 #### (1) the input is a real-time carema
 ```python
-python demo/demo.py --webcam --showFps --writeVideo
+python demo/demo.py --webcam --showFps --write
 ```
 
 #### (2) the input is a video
 ```python
-python demo/demo.py --video test.mp4 --showFps --writeVideo
+python demo/demo.py --video test.mp4 --showFps --write
 ```
 #### (3) the input is a image
 
 ```python
-python demo/demo.py --image test.jpg --showFps --writeImage 
+python demo/demo.py --image test.jpg --showFps --write
 ```
 
 **===Result===**
