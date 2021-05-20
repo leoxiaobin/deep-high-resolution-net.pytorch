@@ -223,6 +223,18 @@ python tools/train.py \
     --cfg experiments/coco/hrnet/w32_256x192_adam_lr1e-3.yaml \
 ```
 
+### Inference on Windows
+
+Code was not evaluated on Windows. Inference is supported. Please refer to ${POSE_ROOT}/demo for example scripts.
+
+```
+
+// Build Libs
+cd ${POSE_ROOT}/lib
+bulid_windows.bat
+
+```
+
 ### Visualization
 
 #### Visualizing predictions on COCO val
