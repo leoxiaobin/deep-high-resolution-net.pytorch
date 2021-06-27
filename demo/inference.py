@@ -249,7 +249,7 @@ def main():
         count += 1
 
         if not ret:
-            continue
+            break
 
         if count % skip_frame_cnt != 0:
             continue
