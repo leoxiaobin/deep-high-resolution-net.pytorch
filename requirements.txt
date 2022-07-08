@@ -1,5 +1,5 @@
 EasyDict==1.7
-opencv-python==3.4.1.15
+opencv-python==3.4.2.17
 shapely==1.6.4
 Cython
 scipy
