@@ -5,7 +5,7 @@ CUDNN:
   ENABLED: true
 DATA_DIR: ''
 GPUS: (0,)
-OUTPUT_DIR: '/gdrive/MyDrive/Hi5/checkpoints/'
+OUTPUT_DIR: '/gdrive/MyDrive/Hi5/HI5/checkpoints/'
 LOG_DIR: 'log'
 WORKERS: 4
 PRINT_FREQ: 100
@@ -25,7 +25,7 @@ DATASET:
 MODEL:
   INIT_WEIGHTS: true
   NAME: pose_hrnet
-  NUM_JOINTS: 17
+  NUM_JOINTS: 21
   PRETRAINED: 'models/pytorch/imagenet/hrnet_w48-8ef0771d.pth'
   TARGET_TYPE: gaussian
   IMAGE_SIZE:
