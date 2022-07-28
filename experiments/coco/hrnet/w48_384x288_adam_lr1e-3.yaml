@@ -20,8 +20,8 @@ DATASET:
   ROOT: 'data/coco/'
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
-  TEST_SET: 'val2017'
-  TRAIN_SET: 'train2017'
+  TEST_SET: 'valid'
+  TRAIN_SET: 'train'
 MODEL:
   INIT_WEIGHTS: true
   NAME: pose_hrnet
