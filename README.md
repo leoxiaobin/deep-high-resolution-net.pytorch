@@ -243,7 +243,9 @@ python visualization/plot_coco.py \
 Many other dense prediction tasks, such as segmentation, face alignment and object detection, etc. have been benefited by HRNet. More information can be found at [High-Resolution Networks](https://github.com/HRNet).
 
 ### Other implementation
-[mmpose](https://github.com/open-mmlab/mmpose)
+[mmpose](https://github.com/open-mmlab/mmpose) </br>
+[ModelScope (中文）](https://modelscope.cn/models/damo/cv_hrnetv2w32_body-2d-keypoints_image/summary)</br>
+[timm](https://huggingface.co/docs/timm/main/en/models/hrnet)
 
 
 ### Citation
