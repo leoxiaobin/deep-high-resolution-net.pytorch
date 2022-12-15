@@ -104,8 +104,8 @@ class PoseResNet(nn.Module):
 
     def __init__(self, block, layers, cfg, **kwargs):
         self.inplanes = 64
-        extra = cfg.MODEL.EXTRA
-        self.deconv_with_bias = extra.DECONV_WITH_BIAS
+        extra = cfg['MODEL']['EXTRA']
+        self.deconv_with_bias = extra['DECONV_WITH_BIAS']
 
         super(PoseResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
@@ -120,17 +120,17 @@ class PoseResNet(nn.Module):
 
         # used for deconv layers
         self.deconv_layers = self._make_deconv_layer(
-            extra.NUM_DECONV_LAYERS,
-            extra.NUM_DECONV_FILTERS,
-            extra.NUM_DECONV_KERNELS,
+            extra['NUM_DECONV_LAYERS'],
+            extra['NUM_DECONV_FILTERS'],
+            extra['NUM_DECONV_KERNELS'],
         )
 
         self.final_layer = nn.Conv2d(
-            in_channels=extra.NUM_DECONV_FILTERS[-1],
-            out_channels=cfg.MODEL.NUM_JOINTS,
-            kernel_size=extra.FINAL_CONV_KERNEL,
+            in_channels=extra['NUM_DECONV_FILTERS'][-1],
+            out_channels=cfg['MODEL']['NUM_JOINTS'],
+            kernel_size=extra['FINAL_CONV_KERNEL'],
             stride=1,
-            padding=1 if extra.FINAL_CONV_KERNEL == 3 else 0
+            padding=1 if extra['FINAL_CONV_KERNEL'] == 3 else 0
         )
 
     def _make_layer(self, block, planes, blocks, stride=1):
@@ -259,13 +259,13 @@ resnet_spec = {
 
 
 def get_pose_net(cfg, is_train, **kwargs):
-    num_layers = cfg.MODEL.EXTRA.NUM_LAYERS
+    num_layers = cfg['MODEL']['EXTRA']['NUM_LAYERS']
 
     block_class, layers = resnet_spec[num_layers]
 
     model = PoseResNet(block_class, layers, cfg, **kwargs)
 
-    if is_train and cfg.MODEL.INIT_WEIGHTS:
-        model.init_weights(cfg.MODEL.PRETRAINED)
+    if is_train and cfg['MODEL']['INIT_WEIGHTS']:
+        model.init_weights(cfg['MODEL']['PRETRAINED'])
 
     return model
